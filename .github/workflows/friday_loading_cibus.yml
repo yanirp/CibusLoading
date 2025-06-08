@@ -43,9 +43,9 @@ jobs:
           TELEGRAMCHATID: ${{ secrets.TELEGRAMCHATID }}
         run: |
           if [ "${{ steps.run_tests.outputs.exit_code }}" == "0" ]; then
-            TEXT="✅ הטעינה בוצעה בהצלחה (הטסט עבר)"
+            TEXT="✅ הטעינה של הסיבוס בוצעה בהצלחה (הטסט עבר)"
           else
-            TEXT="❌ הטסט נכשל או לא בוצעה טעינה לסיבוס"
+            TEXT="❌  לא בוצעה טעינה לסיבוס"
           fi
           curl -s "https://api.telegram.org/bot${TELEGRAMTOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAMCHATID}" \
