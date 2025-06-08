@@ -25,4 +25,18 @@ jobs:
           playwright install
 
       - name: Run tests
-        run: pytest tests/test_topup.py
+        id: test
+        run: |
+          result=$(pytest tests/test_topup.py)
+          echo "$result"
+          if [[ "$result" == *"failed"* ]]; then
+            echo "Test failed. Sending failure notification to Telegram."
+            curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+                 -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+                 -d text="❌ The test failed. Please check the logs."
+          else
+            echo "Test passed. Sending success notification to Telegram."
+            curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+                 -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+                 -d text="✅ The test passed successfully!"
+          fi
