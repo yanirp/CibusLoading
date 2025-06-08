@@ -2,8 +2,9 @@ name: Run Playwright Test Daily at 16:15 Israel Time
 
 on:
   schedule:
-    - cron: '15 13 * * 0-5'  # ריצה כל יום ראשון עד שישי ב-16:15 שעון ישראל (13:15 UTC)
+    - cron: '25 13 * * 0-5'  # ריצה כל יום ראשון עד שישי ב-16:25 לפי שעון ישראל
   workflow_dispatch:
+
 
 jobs:
   test:
