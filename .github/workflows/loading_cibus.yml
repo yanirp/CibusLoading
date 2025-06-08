@@ -1,5 +1,4 @@
 name: Run Playwright Test on Schedule
-
 on:
   schedule:
     - cron: '00 09 * * 0-4'  # ראשון עד חמישי ב־12:00 (ישראל) = 09:00 UTC
