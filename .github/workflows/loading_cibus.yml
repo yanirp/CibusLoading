@@ -1,9 +1,9 @@
 name: Run Playwright Test on Schedule
 on:
   schedule:
-    - cron: '00 09 * * 0-4'  # ראשון עד חמישי ב־12:00 (ישראל) = 09:00 UTC
-    - cron: '00 10 * * 5'    # שישי ב־13:00 (ישראל) = 10:00 UTC
+    - cron: '*/1 * * * *'  # זמני - כל דקה
   workflow_dispatch:
+
 
 jobs:
   test:
