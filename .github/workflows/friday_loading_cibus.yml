@@ -24,19 +24,19 @@ jobs:
           pip install -r requirements.txt
           playwright install
 
-      - name: Run tests
-        id: test
+      - name: Run tests and notify via Telegram
         run: |
-          result=$(pytest tests/test_topup.py)
-          echo "$result"
-          if [[ "$result" == *"failed"* ]]; then
-            echo "Test failed. Sending failure notification to Telegram."
-            curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
-                 -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-                 -d text="❌ The test failed. Please check the logs."
+          pytest tests/test_topup.py
+          status=$?
+
+          if [ $status -eq 0 ]; then
+            message="✅ הטעינה בוצעה בהצלחה (הטסט עבר)"
           else
-            echo "Test passed. Sending success notification to Telegram."
-            curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
-                 -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
-                 -d text="✅ The test passed successfully!"
+            message="❌ הטעינה נכשלה או לא בוצעה (הטסט נכשל)"
           fi
+
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAMTOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAMCHATID }}" \
+            -d text="$message"
+
+        continue-on-error: true
