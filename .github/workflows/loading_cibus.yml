@@ -8,7 +8,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '*/1 * * * *'  # זמני - כל דקה
+    - cron: '0 12 * * 0-4'  # ראשון עד חמישי
+    - cron: '0 12 * * 5'    # שישי
   workflow_dispatch:
 
 jobs:
