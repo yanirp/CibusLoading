@@ -1,8 +1,9 @@
-name: Run Playwright Test Daily at 17:00 Israel Time
+name: Run Playwright Test - Weekday & Friday Times
 
 on:
   schedule:
-    - cron: '0 14 * * 0-5' # כל יום ראשון עד שישי בשעה 14:00 UTC = 17:00 ישראל
+    - cron: '0 9 * * 0-4'   # ראשון עד חמישי, 12:00 ישראל (09:00 UTC)
+    - cron: '0 10 * * 5'    # שישי בלבד, 13:00 ישראל (10:00 UTC)
   workflow_dispatch:
 
 jobs:
@@ -41,15 +42,13 @@ jobs:
           TELEGRAMCHATID: ${{ secrets.TELEGRAMCHATID }}
         run: |
           DATE=$(TZ=Asia/Jerusalem date +"%Y-%m-%d")
-          TIME=$(TZ=Asia/Jerusalem date +"%H:%M") # הוספה: חישוב השעה בפורמט שעה:דקה
           DAY_NAME=$(TZ=Asia/Jerusalem date +"%A" | sed 's/Monday/שני/;s/Tuesday/שלישי/;s/Wednesday/רביעי/;s/Thursday/חמישי/;s/Friday/שישי/;s/Saturday/שבת/;s/Sunday/ראשון/')
           if [ "${{ steps.run_tests.outputs.exit_code }}" == "0" ]; then
             STATUS="✅ טעינת סיבוס בוצעה בהצלחה"
           else
             STATUS="❌ טעינת סיבוס נכשלה"
           fi
-          # שינוי: הוספת השעה להודעה
-          TEXT="$STATUS ביום $DAY_NAME, תאריך: $DATE, שעה: $TIME (ישראל)"
+          TEXT="$STATUS ביום $DAY_NAME, תאריך: $DATE"
           curl -s "https://api.telegram.org/bot${TELEGRAMTOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAMCHATID}" \
             --data-urlencode "text=${TEXT}"
