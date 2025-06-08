@@ -1,13 +1,13 @@
-name: Run Playwright Test Daily at 16:43 Israel Time
+name: Run Playwright Test Daily at 16:50 Israel Time
 
 on:
   schedule:
-    - cron: '50 13 * * *'  # 16:50 שעון ישראל
+    - cron: '50 13 * * 0-5'  # ימי ראשון עד שישי
+  workflow_dispatch:
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,4 +47,6 @@ jobs:
             STATUS="❌ טעינת סיבוס נכשלה"
           fi
           TEXT="$STATUS ביום $DAY_NAME, תאריך: $DATE"
-          curl -
+          curl -s "https://api.telegram.org/bot${TELEGRAMTOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAMCHATID}" \
+            --data-urlencode "text=${TEXT}"
