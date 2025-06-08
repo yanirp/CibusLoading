@@ -1,10 +1,9 @@
-name: Run Playwright Test Daily at 16:15 Israel Time
+name: Run Playwright Test Daily at 16:40 Israel Time
 
 on:
   schedule:
-    - cron: '25 13 * * 0-5'  # ריצה כל יום ראשון עד שישי ב-16:25 לפי שעון ישראל
+    - cron: '40 13 * * 0-5'  # כל יום ראשון עד שישי, 13:40 UTC (16:40 שעון ישראל)
   workflow_dispatch:
-
 
 jobs:
   test:
@@ -32,9 +31,7 @@ jobs:
           pytest tests/test_topup.py > result.log
           EXIT_CODE=$?
           echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
-          echo "==== Test Output ===="
           cat result.log
-          echo "====================="
           exit $EXIT_CODE
 
       - name: Send Telegram message
@@ -43,15 +40,13 @@ jobs:
           TELEGRAMTOKEN: ${{ secrets.TELEGRAMTOKEN }}
           TELEGRAMCHATID: ${{ secrets.TELEGRAMCHATID }}
         run: |
-          DATE=$(date +"%Y-%m-%d")
-          DAY_NAME=$(date +"%A" | sed 's/Monday/שני/;s/Tuesday/שלישי/;s/Wednesday/רביעי/;s/Thursday/חמישי/;s/Friday/שישי/;s/Saturday/שבת/;s/Sunday/ראשון/')
-          
+          DATE=$(TZ=Asia/Jerusalem date +"%Y-%m-%d")
+          DAY_NAME=$(TZ=Asia/Jerusalem date +"%A" | sed 's/Monday/שני/;s/Tuesday/שלישי/;s/Wednesday/רביעי/;s/Thursday/חמישי/;s/Friday/שישי/;s/Saturday/שבת/;s/Sunday/ראשון/')
           if [ "${{ steps.run_tests.outputs.exit_code }}" == "0" ]; then
             STATUS="✅ טעינת סיבוס בוצעה בהצלחה"
           else
             STATUS="❌ טעינת סיבוס נכשלה"
           fi
-
           TEXT="$STATUS ביום $DAY_NAME, תאריך: $DATE"
           curl -s "https://api.telegram.org/bot${TELEGRAMTOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAMCHATID}" \
