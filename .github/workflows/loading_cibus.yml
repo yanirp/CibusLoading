@@ -3,7 +3,7 @@ name: Run Playwright Test - Weekday & Friday Times
 on:
   schedule:
     - cron: '0 9 * * 0-4'
-    - cron: '0 10 * * 5'
+    - cron: '0 10 * *5'
   workflow_dispatch:
 
 jobs:
