@@ -2,7 +2,7 @@ name: Run Playwright Test Daily at 16:00 Israel Time
 
 on:
   schedule:
-    - cron: '0 13 * * *'  # כל יום בשעה 13:00 UTC (16:00 ישראל)
+    - cron: '0 13 * * *'  # 16:00 ישראל
   workflow_dispatch:
 
 jobs:
@@ -24,19 +24,29 @@ jobs:
           pip install -r requirements.txt
           playwright install
 
-      - name: Run tests and notify via Telegram
+      - name: Run tests and capture result
+        id: run_tests
         run: |
-          pytest tests/test_topup.py
-          status=$?
+          set +e
+          pytest tests/test_topup.py > result.log
+          EXIT_CODE=$?
+          echo "exit_code=$EXIT_CODE" >> $GITHUB_OUTPUT
+          echo "==== Test Output ===="
+          cat result.log
+          echo "====================="
+          exit $EXIT_CODE
 
-          if [ $status -eq 0 ]; then
-            message="✅ הטעינה בוצעה בהצלחה (הטסט עבר)"
+      - name: Send Telegram message
+        if: always()
+        env:
+          TELEGRAMTOKEN: ${{ secrets.TELEGRAMTOKEN }}
+          TELEGRAMCHATID: ${{ secrets.TELEGRAMCHATID }}
+        run: |
+          if [ "${{ steps.run_tests.outputs.exit_code }}" == "0" ]; then
+            TEXT="✅ הטעינה בוצעה בהצלחה (הטסט עבר)"
           else
-            message="❌ הטעינה נכשלה או לא בוצעה (הטסט נכשל)"
+            TEXT="❌ הטסט נכשל או לא בוצעה טעינה לסיבוס"
           fi
-
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAMTOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAMCHATID }}" \
-            -d text="$message"
-
-        continue-on-error: true
+          curl -s "https://api.telegram.org/bot${TELEGRAMTOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAMCHATID}" \
+            --data-urlencode "text=${TEXT}"
