@@ -1,8 +1,9 @@
 name: Run Playwright Test on Schedule
+
 on:
   schedule:
-    - cron: '0 9 * * 0-4'
-    - cron: '0 10 * * 5'
+    - cron: '00 09 * * 0-4'  # ראשון עד חמישי ב־12:00 (ישראל) = 09:00 UTC
+    - cron: '00 10 * * 5'    # שישי ב־13:00 (ישראל) = 10:00 UTC
   workflow_dispatch:
 
 jobs:
@@ -52,4 +53,4 @@ jobs:
             -d "chat_id=${TELEGRAMCHATID}" \
             --data-urlencode "text=${TEXT}"
 
-# Trigger cron schedule
+# Updated to ensure GitHub picks up the cron changes
