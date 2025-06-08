@@ -2,7 +2,7 @@ name: Run Playwright Test Daily at 16:43 Israel Time
 
 on:
   schedule:
-    - cron: '43 13 * * 0-5'
+    - cron: '50 13 * * *'  # 16:50 שעון ישראל
   workflow_dispatch:
 
 jobs:
