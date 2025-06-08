@@ -81,13 +81,15 @@ def test_topup():
                 page.wait_for_timeout(2000)  # המתנה לסיום פעולה
             elif balance_value < 100.0:
                 print("❌ יתרה קטנה מ-100 ש״ח — לא מבצע טעינה לסיבוס, סוגר דפדפן.")
+                assert False, "הטענת הכרטיס לא בוצעה כי היתרה קטנה מ-100 ש״ח"
             else:
                 print(f"⚠️ יתרה לא צפויה: {balance_value} ש״ח")
+                assert False, f"הטענת הכרטיס נכשלה עם יתרה לא צפויה: {balance_value}"
 
         except Exception as e:
             print("⚠️ לא הצלחנו לזהות את היתרה היומית:", e)
 
         # המתנה כללית בסוף (אם צריך)
-        page.wait_for_timeout(5000)
+        #page.wait_for_timeout(5000)
 
         browser.close()
