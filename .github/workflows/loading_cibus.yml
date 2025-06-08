@@ -25,6 +25,9 @@ jobs:
           pip install -r requirements.txt
           playwright install
 
+      - name: Show event trigger
+        run: echo "Triggered by ${{ github.event_name }}"
+
       - name: Run tests and capture result
         id: run_tests
         run: |
@@ -52,5 +55,3 @@ jobs:
           curl -s "https://api.telegram.org/bot${TELEGRAMTOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAMCHATID}" \
             --data-urlencode "text=${TEXT}"
-
-# Updated to ensure GitHub picks up the cron changes
