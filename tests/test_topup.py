@@ -63,7 +63,7 @@ def test_topup():
 
         # --- בדיקת יתרה יומית לפי ערך מדויק ₪100.0 ---
         try:
-            #page.wait_for_selector("//big[contains(text(),'₪100.0')]", timeout=5000)
+            page.wait_for_selector("//big[contains(text(),'₪100.0')]", timeout=5000)
             balance_text = page.inner_text("//big[contains(text(),'₪100.0')]")
             print("balance_text:", balance_text)
 
@@ -84,3 +84,5 @@ def test_topup():
         except Exception as e:
             print("⚠️ לא הצלחנו לזהות את היתרה היומית:", e)
             assert False, f"שגיאה בזיהוי יתרה: {e}"
+
+
