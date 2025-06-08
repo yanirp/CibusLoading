@@ -63,22 +63,17 @@ def test_topup():
 
         # --- בדיקת יתרה יומית לפי ערך מדויק ₪100.0 ---
         try:
-            # המתן שהאלמנט שמכיל בדיוק את הטקסט הזה יופיע
-            page.wait_for_selector("//big[contains(text(),'₪100.0')]", timeout=5000)
-
-            # קרא את הטקסט מתוך האלמנט
+            #page.wait_for_selector("//big[contains(text(),'₪100.0')]", timeout=5000)
             balance_text = page.inner_text("//big[contains(text(),'₪100.0')]")
             print("balance_text:", balance_text)
 
-            # חילוץ המספר מתוך הטקסט
             balance_value = float(balance_text.replace("₪", "").strip())
             print("יתרה מזוהה:", balance_value, "₪")
 
-            # תנאים לפי היתרה
             if balance_value == 100.0:
                 print("✅ יתרה היא 100 ש״ח — מבצע טעינת כרטיס...")
                 page.click("//input[@id='btnPay']")
-                page.wait_for_timeout(2000)  # המתנה לסיום פעולה
+                page.wait_for_timeout(2000)
             elif balance_value < 100.0:
                 print("❌ יתרה קטנה מ-100 ש״ח — לא מבצע טעינה לסיבוס, סוגר דפדפן.")
                 assert False, "הטענת הכרטיס לא בוצעה כי היתרה קטנה מ-100 ש״ח"
@@ -88,8 +83,4 @@ def test_topup():
 
         except Exception as e:
             print("⚠️ לא הצלחנו לזהות את היתרה היומית:", e)
-
-        # המתנה כללית בסוף (אם צריך)
-        #page.wait_for_timeout(5000)
-
-        browser.close()
+            assert False, f"שגיאה בזיהוי יתרה: {e}"
