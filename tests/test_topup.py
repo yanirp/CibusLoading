@@ -1,5 +1,5 @@
-import pytest
 from playwright.sync_api import sync_playwright
+
 
 def test_topup():
     with sync_playwright() as p:
@@ -47,3 +47,47 @@ def test_topup():
         assert "myconsumers.pluxee.co.il" in page.url
         page.wait_for_selector("//h1[@id='hTitle']")
         assert page.locator("//h1[@id='hTitle']").is_visible()
+
+
+        cibus_username_selector = "//input[@id='txtUserName']"
+        page.fill(cibus_username_selector, "")  # מנקה את השדה
+        page.fill(cibus_username_selector, "יניר פטל")
+        cibuspassword_selector = "//input[@id='txtPassword']"
+        page.fill(cibuspassword_selector, "")
+        page.fill(cibuspassword_selector, "Patel0025!")
+        cibus_company_selector = "//input[@id='txtCompany']"
+        page.fill(cibus_company_selector, "מגער")
+        page.click("//input[@id='btnSubmit']")
+        page.wait_for_selector("text= יניר פטל")
+        assert "יניר פטל" in page.content()
+
+        # --- בדיקת יתרה יומית לפי ערך מדויק ₪100.0 ---
+        try:
+            # המתן שהאלמנט שמכיל בדיוק את הטקסט הזה יופיע
+            page.wait_for_selector("//big[contains(text(),'₪100.0')]", timeout=5000)
+
+            # קרא את הטקסט מתוך האלמנט
+            balance_text = page.inner_text("//big[contains(text(),'₪100.0')]")
+            print("balance_text:", balance_text)
+
+            # חילוץ המספר מתוך הטקסט
+            balance_value = float(balance_text.replace("₪", "").strip())
+            print("יתרה מזוהה:", balance_value, "₪")
+
+            # תנאים לפי היתרה
+            if balance_value == 100.0:
+                print("✅ יתרה היא 100 ש״ח — מבצע טעינת כרטיס...")
+                page.click("//input[@id='btnPay']")
+                page.wait_for_timeout(2000)  # המתנה לסיום פעולה
+            elif balance_value < 100.0:
+                print("❌ יתרה קטנה מ-100 ש״ח — לא מבצע טעינה לסיבוס, סוגר דפדפן.")
+            else:
+                print(f"⚠️ יתרה לא צפויה: {balance_value} ש״ח")
+
+        except Exception as e:
+            print("⚠️ לא הצלחנו לזהות את היתרה היומית:", e)
+
+        # המתנה כללית בסוף (אם צריך)
+        page.wait_for_timeout(5000)
+
+        browser.close()
