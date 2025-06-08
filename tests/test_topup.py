@@ -82,7 +82,7 @@ def test_topup():
                 assert False, f"הטענת הכרטיס נכשלה עם יתרה לא צפויה: {balance_value}"
 
         except Exception as e:
-            print("⚠️ לא הצלחנו לזהות את היתרה היומית:", e)
+            print("⚠️ היתרה קטנה מ 100 שקל , כנראה בוצע טעינה או שימוש היום:", e)
             assert False, f"שגיאה בזיהוי יתרה: {e}"
 
 
