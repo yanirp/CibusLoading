@@ -51,3 +51,5 @@ jobs:
           curl -s "https://api.telegram.org/bot${TELEGRAMTOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAMCHATID}" \
             --data-urlencode "text=${TEXT}"
+
+# Trigger cron schedule
