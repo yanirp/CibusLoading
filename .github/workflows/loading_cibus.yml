@@ -1,9 +1,15 @@
 name: Run Playwright Test on Schedule
+
 on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
   schedule:
     - cron: '*/1 * * * *'  # זמני - כל דקה
   workflow_dispatch:
-
 
 jobs:
   test:
