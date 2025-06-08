@@ -2,7 +2,7 @@ name: Run Playwright Test Daily at 16:00 Israel Time
 
 on:
   schedule:
-    - cron: '0 13 * * *'  # 16:00 ישראל
+    - cron: '0 13 * * *'  # 16:00 לפי שעון ישראל
   workflow_dispatch:
 
 jobs:
@@ -42,11 +42,16 @@ jobs:
           TELEGRAMTOKEN: ${{ secrets.TELEGRAMTOKEN }}
           TELEGRAMCHATID: ${{ secrets.TELEGRAMCHATID }}
         run: |
+          DATE=$(date +"%Y-%m-%d")
+          DAY_NAME=$(date +"%A" | sed 's/Monday/שני/;s/Tuesday/שלישי/;s/Wednesday/רביעי/;s/Thursday/חמישי/;s/Friday/שישי/;s/Saturday/שבת/;s/Sunday/ראשון/')
+          
           if [ "${{ steps.run_tests.outputs.exit_code }}" == "0" ]; then
-            TEXT="✅ הטעינה של הסיבוס בוצעה בהצלחה (הטסט עבר)"
+            STATUS="✅ טעינת סיבוס בוצעה בהצלחה"
           else
-            TEXT="❌  לא בוצעה טעינה לסיבוס"
+            STATUS="❌ טעינה סיבוס לא בוצעה"
           fi
+
+          TEXT="$STATUS ביום $DAY_NAME, תאריך: $DATE"
           curl -s "https://api.telegram.org/bot${TELEGRAMTOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAMCHATID}" \
             --data-urlencode "text=${TEXT}"
