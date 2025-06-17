@@ -1,67 +1,67 @@
+import os
 from playwright.sync_api import sync_playwright
-
 
 def test_topup():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
 
-        # 1. נווט לאתר
+        # --- טען משתנים רגישים מהסביבה ---
+        hahishook_username = os.getenv("HAHISHOOK_USERNAME")
+        hahishook_password = os.getenv("HAHISHOOK_PASSWORD")
+        cibus_username = os.getenv("CIBUS_USERNAME")
+        cibus_password = os.getenv("CIBUS_PASSWORD")
+        cibus_company = os.getenv("CIBUS_COMPANY")
+
+        # --- גש לאתר הראשי ---
         page.goto("https://hahishook.com/")
         page.wait_for_selector("text=החישוק - מיזם חברתי כלכלי שמשנה את חוקי המשחק")
         assert page.locator("text=החישוק - מיזם חברתי כלכלי שמשנה את חוקי המשחק").is_visible()
 
-        # לחץ על הקישור "החשבון שלי"
+        # --- התחברות לחשבון החישוק ---
         page.click("li#menu-item-938 a")
         response = page.request.get("https://hahishook.com/my-account/")
         assert response.status == 200
         assert "החשבון שלי" in response.text()
 
-        # לחץ על כפתור "התחברות עם סיסמה"
         page.click("//button[contains(text(),'התחברות עם סיסמה')]")
         page.wait_for_selector("//input[@id='username']")
         page.wait_for_selector("//input[@id='password']")
 
-        # מלא את פרטי ההתחברות
-        page.fill("//input[@id='username']","yanirqa10@gmail.com")
-        page.fill("//input[@id='password']", "patel0025!")
+        page.fill("//input[@id='username']", hahishook_username)
+        page.fill("//input[@id='password']", hahishook_password)
         page.click("//button[contains(text(),'שלח שם וסיסמה')]")
 
-
+        # --- גישה לארנק ---
         page.click("//a[contains(text(),'הארנק שלי')]")
         response = page.request.get("https://hahishook.com/my-account/woo-wallet/")
         assert response.status == 200
         assert "יתרה" in response.text()
 
-        # לחיצה על טעינת כפתור סיבוס
+        # --- טעינה עם סיבוס ---
         page.click("//p[contains(text(),'טעינה עם סיבוס')]")
         page.wait_for_selector("//input[@id='woo_wallet_balance_to_add']")
         page.fill("//input[@id='woo_wallet_balance_to_add']", "4")
         page.wait_for_selector("//input[@value='0']")
-        # בחר שהחישוק ישלם (radio button עם value='0')
         page.check("//input[@value='0']")
-        # לחץ על כפתור טעינה עם סיבוס (מעבר באותו הטאב)
         page.click("//button[contains(text(), 'טעינה עם סיבוס')]")
-        # המתן שהכתובת תשתנה ותיטען לכתובת הסיבוס עם הטוקן
         page.wait_for_url("https://myconsumers.pluxee.co.il/**", wait_until="domcontentloaded")
         assert "myconsumers.pluxee.co.il" in page.url
         page.wait_for_selector("//h1[@id='hTitle']")
         assert page.locator("//h1[@id='hTitle']").is_visible()
 
-
-        cibus_username_selector = "//input[@id='txtUserName']"
-        page.fill(cibus_username_selector, "")  # מנקה את השדה
-        page.fill(cibus_username_selector, "יניר פטל")
-        cibuspassword_selector = "//input[@id='txtPassword']"
-        page.fill(cibuspassword_selector, "")
-        page.fill(cibuspassword_selector, "Patel0025!")
-        cibus_company_selector = "//input[@id='txtCompany']"
-        page.fill(cibus_company_selector, "מגער")
+        # --- התחברות לסיבוס ---
+        page.fill("//input[@id='txtUserName']", "")
+        page.fill("//input[@id='txtUserName']", cibus_username)
+        page.fill("//input[@id='txtPassword']", "")
+        page.fill("//input[@id='txtPassword']", cibus_password)
+        page.fill("//input[@id='txtCompany']", cibus_company)
         page.click("//input[@id='btnSubmit']")
+
         page.wait_for_selector("text= יניר פטל")
         assert "יניר פטל" in page.content()
 
-        # --- בדיקת יתרה יומית לפי ערך מדויק ₪100.0 ---
+        # --- בדיקת יתרה וטעינה ---
         try:
             page.wait_for_selector("//big[contains(text(),'₪100.0')]", timeout=5000)
             balance_text = page.inner_text("//big[contains(text(),'₪100.0')]")
@@ -84,5 +84,3 @@ def test_topup():
         except Exception as e:
             print("⚠️ היתרה קטנה מ 100 שקל , בוצע טעינה או שימוש היום:", e)
             assert False, f"היתרה קטנה מ 100 שקל , בוצע טעינה או שימוש היום: {e}"
-
-

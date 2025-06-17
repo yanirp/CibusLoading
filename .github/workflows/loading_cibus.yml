@@ -36,6 +36,13 @@ jobs:
 
       - name: Run tests and capture result
         id: run_tests
+        env:
+          # הגדרת secrets שהוזנו ב-GitHub
+          HAHISHOOK_USERNAME: ${{ secrets.HAHISHOOK_USERNAME }}
+          HAHISHOOK_PASSWORD: ${{ secrets.HAHISHOOK_PASSWORD }}
+          CIBUS_USERNAME: ${{ secrets.CIBUS_USERNAME }}
+          CIBUS_PASSWORD: ${{ secrets.CIBUS_PASSWORD }}
+          CIBUS_COMPANY: ${{ secrets.CIBUS_COMPANY }}
         run: |
           set +e
           pytest tests/test_topup.py > result.log
