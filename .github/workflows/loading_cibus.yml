@@ -37,12 +37,18 @@ jobs:
       - name: Run tests and capture result
         id: run_tests
         env:
-          # הגדרת secrets שהוזנו ב-GitHub
+          # סודות קיימים למערכת סיבוס
           HAHISHOOK_USERNAME: ${{ secrets.HAHISHOOK_USERNAME }}
           HAHISHOOK_PASSWORD: ${{ secrets.HAHISHOOK_PASSWORD }}
           CIBUS_USERNAME: ${{ secrets.CIBUS_USERNAME }}
           CIBUS_PASSWORD: ${{ secrets.CIBUS_PASSWORD }}
           CIBUS_COMPANY: ${{ secrets.CIBUS_COMPANY }}
+
+          # סודות לקריאת OTP מהמייל
+          EMAIL_ADDRESS: ${{ secrets.EMAIL_ADDRESS }}
+          EMAIL_APP_PASSWORD: ${{ secrets.EMAIL_APP_PASSWORD }}
+          EMAIL_IMAP_SERVER: ${{ secrets.EMAIL_IMAP_SERVER }}
+          EMAIL_IMAP_PORT: ${{ secrets.EMAIL_IMAP_PORT }}
         run: |
           set +e
           pytest tests/test_topup.py > result.log

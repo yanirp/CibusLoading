@@ -1,5 +1,7 @@
 import os
 from playwright.sync_api import sync_playwright
+from utils.email_utils import get_cibus_otp_from_email
+
 
 def test_topup():
     with sync_playwright() as p:
@@ -12,6 +14,12 @@ def test_topup():
         cibus_username = os.getenv("CIBUS_USERNAME")
         cibus_password = os.getenv("CIBUS_PASSWORD")
         cibus_company = os.getenv("CIBUS_COMPANY")
+        EMAIL = os.getenv("EMAIL_ADDRESS")
+        PASSWORD = os.getenv("EMAIL_APP_PASSWORD")
+        IMAP_SERVER = os.getenv("EMAIL_IMAP_SERVER", "imap.gmail.com")
+        IMAP_PORT = int(os.getenv("EMAIL_IMAP_PORT", 993))
+        SENDER_DOMAIN = os.getenv("CIBUS_SENDER_DOMAIN", "notifications.pluxee.co.il")
+        SUBJECT_FILTER = os.getenv("CIBUS_SUBJECT_FILTER", "קוד האימות שלך בסיבוס")
 
         # --- גש לאתר הראשי ---
         page.goto("https://hahishook.com/")
@@ -58,8 +66,19 @@ def test_topup():
         page.fill("//input[@id='txtCompany']", cibus_company)
         page.click("//input[@id='btnSubmit']")
 
-        page.wait_for_selector("text= יניר פטל")
-        assert "יניר פטל" in page.content()
+        # --- המתן ל־OTP, שלוף מהמייל והזן ---
+        page.wait_for_selector("input[type='tel']", timeout=15000)
+        otp = get_cibus_otp_from_email(
+            email_address=EMAIL,
+            app_password=PASSWORD,
+            imap_server=IMAP_SERVER,
+            imap_port=IMAP_PORT,
+            sender_domain=SENDER_DOMAIN,
+            subject_filter=SUBJECT_FILTER
+        )
+        print("📨 OTP שהתקבל מהמייל:", otp)
+        page.fill("input[type='tel']", otp)
+        page.click("text=שימוש בקוד")  # ודא שהטקסט תואם לכפתור בפועל
 
         # --- בדיקת יתרה וטעינה ---
         try:
